@@ -26,7 +26,8 @@ class ChatRequestHandler(SocketServer.BaseRequestHandler):
                 #print "[%s] %s" % (addr, s) 
 		self.log(s, addr)
 		anfrage =  json.loads(s)
-		dir = os.popen("plugins/disc_space.plugin -w 80 -c 90 --disc /dev/sda1").readlines()
+		params = "" # Parameter die per anfrage["param"] uebergeben werden
+		dir = os.popen("plugins/"+anfrage["plugin"]+".plugin -w "+anfrage["warning"]+" -c "+anfrage["critical"]+" --disc /dev/sda1").readlines()
 		#print str(dir)
 		#self.log(dir, addr)
 		ret = str(dir[0]).replace("\n", "")
