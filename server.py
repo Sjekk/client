@@ -2,8 +2,11 @@ import SocketServer
 import json
 import os
 import ConfigParser
+import time
 #import socket
 class ChatRequestHandler(SocketServer.BaseRequestHandler):
+    def log(self, msg, ip):
+	print "["+str(time.strftime("%d.%m.%Y %H:%M:%S")) +"]["+ip+"] "+str(msg)
     def handle(self): 
 	try:
 		self.ips
@@ -14,15 +17,18 @@ class ChatRequestHandler(SocketServer.BaseRequestHandler):
 		self.ips = contactIP.rsplit(",")
 		print "JA"
         addr = self.client_address[0] 
-        print "[%s] Verbindung hergestellt" % addr 
+        #print "[%s] Verbindung hergestellt" % addr 
+	self.log("Verbindungs hergestellt", addr)
         while True:
             s = self.request.recv(1024)
 	    socket = self.request
             if s: 
-                print "[%s] %s" % (addr, s) 
+                #print "[%s] %s" % (addr, s) 
+		self.log(s, addr)
 		anfrage =  json.loads(s)
 		dir = os.popen("plugins/disc_space.plugin -w 80 -c 90 --disc /dev/sda1").readlines()
-		print str(dir)
+		#print str(dir)
+		#self.log(dir, addr)
 		ret = str(dir[0]).replace("\n", "")
 		arr = json.loads(ret)
 		ret = '{"plugin": "'+anfrage["plugin"]+'" , "status": "'+arr["status"]+'", "msg" : "'+arr["msg"]+'"}'
@@ -30,9 +36,11 @@ class ChatRequestHandler(SocketServer.BaseRequestHandler):
 			socket.sendto(ret, self.client_address)
 		else:
 			socket.sendto("Wrong IP", self.client_address)
-		print ret
+		#print ret
+		self.log(ret, addr)
             else: 
-                print "[%s] Verbindung geschlossen" % addr 
+                #print "[%s] Verbindung geschlossen" % addr 
+		self.log("Verbindung geschlossen", addr)
                 break
 
 server = SocketServer.ThreadingTCPServer(("", 50000), ChatRequestHandler) 
