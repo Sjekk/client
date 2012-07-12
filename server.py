@@ -4,10 +4,6 @@ import os
 import ConfigParser
 #import socket
 class ChatRequestHandler(SocketServer.BaseRequestHandler):
-    def loadConfig(self):
-	self.config = ConfigParser.ConfigParser()
-	self.config.read("config") 
-	print self.config.get("Secure", "Server")
     def handle(self): 
 	try:
 		self.ips
@@ -25,20 +21,15 @@ class ChatRequestHandler(SocketServer.BaseRequestHandler):
             if s: 
                 print "[%s] %s" % (addr, s) 
 		anfrage =  json.loads(s)
-		#disc_space.py -w 80 -c 90 --disc /dev/sda1
 		dir = os.popen("plugins/disc_space.plugin -w 80 -c 90 --disc /dev/sda1").readlines()
 		print str(dir)
 		ret = str(dir[0]).replace("\n", "")
-		#print ret
 		arr = json.loads(ret)
 		ret = '{"plugin": "'+anfrage["plugin"]+'" , "status": "'+arr["status"]+'", "msg" : "'+arr["msg"]+'"}'
-		#addr.send(ret)
 		if(addr in self.ips):
 			socket.sendto(ret, self.client_address)
-			#socket.sendto("Wrong IP", self.client_address)
 		else:
 			socket.sendto("Wrong IP", self.client_address)
-			#socket.sendto(ret, self.client_address)
 		print ret
             else: 
                 print "[%s] Verbindung geschlossen" % addr 
